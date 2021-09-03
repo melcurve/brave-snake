@@ -1,0 +1,38 @@
+@import "../../styles/variables.scss";
+
+.yard {
+  .block-container {
+    $blockSize: 8px;
+    $blockBorder: solid #eaeaea 1px;
+
+    width: $blockSize * 50;
+    flex-wrap: wrap;
+    box-sizing: content-box;
+
+    .block-item {
+      width: $blockSize;
+      height: $blockSize;
+      text-align: center;
+      line-height: $blockSize;
+
+      &.filled {
+        background-color: black;
+      }
+
+      &.head{
+        border: solid black 1px;
+        background-color: white;
+        transform: scale(1.06);
+      }
+
+      &.type-edge {
+        background-color: rgb(185, 185, 185);
+      }
+
+      &.type-food {
+        border-radius: 50%;
+        background-color: brown;
+      }
+    }
+  }
+}
