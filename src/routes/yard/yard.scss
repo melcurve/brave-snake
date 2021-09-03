@@ -2,8 +2,9 @@
 
 .yard {
   .block-container {
-    $blockSize: 8px;
+    $blockSize: 100vw / 50;
     $blockBorder: solid #eaeaea 1px;
+    background-color: #a5b003;
 
     width: $blockSize * 50;
     flex-wrap: wrap;
@@ -16,22 +17,22 @@
       line-height: $blockSize;
 
       &.filled {
-        background-color: black;
+        background-color: #3b4f11;
       }
 
-      &.head{
+      &.head {
         border: solid black 1px;
-        background-color: white;
+        background-color: #88ad39;
         transform: scale(1.06);
       }
 
       &.type-edge {
-        background-color: rgb(185, 185, 185);
+        background-color: black;
       }
 
       &.type-food {
         border-radius: 50%;
-        background-color: brown;
+        background-color: #ebd27f;
       }
     }
   }

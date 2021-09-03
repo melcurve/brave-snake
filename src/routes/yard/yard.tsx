@@ -4,10 +4,6 @@ import { randomNumber } from "../../utils/common";
 import "./yard.scss";
 
 export default class Yard extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   yardRef: any;
 
   yardSize: number = 50;
