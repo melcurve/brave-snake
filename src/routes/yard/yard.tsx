@@ -37,7 +37,7 @@ export default class Yard extends React.Component {
   render() {
     const renderBlockItem = () => {
       return this.blockMap.map((item: BlockItem, index) => {
-        return <div key={item.id} className={`block-item ${this.snakeInfo.position.includes(index) ? "filled" : ""} ${index == this.snakeInfo.position[this.snakeInfo.position.length - 1] ? "head" : ""} type-${item.type}`}></div>;
+        return <div key={item.id} className={`block-item ${this.snakeInfo.position.includes(index) ? "filled" : ""} ${index === this.snakeInfo.position[this.snakeInfo.position.length - 1] ? "head" : ""} type-${item.type}`}></div>;
       });
     };
 
@@ -61,7 +61,7 @@ export default class Yard extends React.Component {
     let isEdge = false;
     if (index + 1 <= this.yardSize || index + 1 >= this.yardSize * (this.yardSize - 1)) isEdge = true;
     for (let i = 1; i <= this.yardSize; i++) {
-      if (index == i * this.yardSize - this.yardSize || index == i * this.yardSize - 1) isEdge = true;
+      if (index === i * this.yardSize - this.yardSize || index === i * this.yardSize - 1) isEdge = true;
     }
     return isEdge;
   }
@@ -86,7 +86,7 @@ export default class Yard extends React.Component {
       case "left":
         const leftHead = position[position.length - 1] - 1;
         this.handleMove(leftHead);
-        if (this.blockMap[leftHead].type == "food") {
+        if (this.blockMap[leftHead].type === "food") {
           position.push(leftHead - 1);
           this.addScore();
           this.setFood();
@@ -95,7 +95,7 @@ export default class Yard extends React.Component {
       case "right":
         const rightHeight = position[position.length - 1] + 1;
         this.handleMove(rightHeight);
-        if (this.blockMap[rightHeight].type == "food") {
+        if (this.blockMap[rightHeight].type === "food") {
           position.push(rightHeight + 1);
           this.addScore();
           this.setFood();
@@ -104,7 +104,7 @@ export default class Yard extends React.Component {
       case "up":
         const upHead = position[position.length - 1] - this.yardSize;
         this.handleMove(upHead);
-        if (this.blockMap[upHead].type == "food") {
+        if (this.blockMap[upHead].type === "food") {
           position.push(upHead - this.yardSize);
           this.addScore();
           this.setFood();
@@ -113,7 +113,7 @@ export default class Yard extends React.Component {
       case "down":
         const downHead = position[position.length - 1] + this.yardSize;
         this.handleMove(downHead);
-        if (this.blockMap[downHead].type == "food") {
+        if (this.blockMap[downHead].type === "food") {
           position.push(downHead + this.yardSize);
           this.addScore();
           this.setFood();
@@ -126,7 +126,7 @@ export default class Yard extends React.Component {
   }
 
   handleMove(position: number) {
-    if (this.blockMap[position].type == "edge" || this.snakeInfo.position.includes(position)) {
+    if (this.blockMap[position].type === "edge" || this.snakeInfo.position.includes(position)) {
       this.gameover();
       return;
     }
@@ -135,18 +135,18 @@ export default class Yard extends React.Component {
   }
 
   addScore() {
-    this.state.score++;
+    this.setState({ score: this.state.score + 1 });
   }
 
   setFood() {
     const getPosition = (): number => {
       const number = randomNumber(0, Math.pow(this.yardSize, 2));
-      if (this.snakeInfo.position.includes(number) || this.blockMap[number].type == "edge") return getPosition();
+      if (this.snakeInfo.position.includes(number) || this.blockMap[number].type === "edge") return getPosition();
       else return number;
     };
 
     let blockMap = this.blockMap;
-    let foodBlock = blockMap.find((item) => item.type == "food");
+    let foodBlock = blockMap.find((item) => item.type === "food");
     if (foodBlock) foodBlock.type = "default";
     const position = getPosition();
     blockMap[position].type = "food";
@@ -156,16 +156,16 @@ export default class Yard extends React.Component {
   onkeydown(e: any) {
     switch (e.key) {
       case "ArrowUp":
-        if (this.snakeInfo.direction != "down") this.snakeInfo.direction = "up";
+        if (this.snakeInfo.direction !== "down") this.snakeInfo.direction = "up";
         break;
       case "ArrowLeft":
-        if (this.snakeInfo.direction != "right") this.snakeInfo.direction = "left";
+        if (this.snakeInfo.direction !== "right") this.snakeInfo.direction = "left";
         break;
       case "ArrowRight":
-        if (this.snakeInfo.direction != "left") this.snakeInfo.direction = "right";
+        if (this.snakeInfo.direction !== "left") this.snakeInfo.direction = "right";
         break;
       case "ArrowDown":
-        if (this.snakeInfo.direction != "up") this.snakeInfo.direction = "down";
+        if (this.snakeInfo.direction !== "up") this.snakeInfo.direction = "down";
         break;
     }
   }

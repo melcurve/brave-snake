@@ -18,6 +18,7 @@ export function valid(value: any, type?: 0 | 1 | 2 | 3): boolean {
   if (type === 1) return Boolean((value instanceof Array) && value.length);
   // 对象判断
   if (type === 2) return Boolean((value instanceof Object) && Object.keys(value).length > 0);
+  return false;
 };
 
 /**
@@ -25,8 +26,8 @@ export function valid(value: any, type?: 0 | 1 | 2 | 3): boolean {
  * @param {object} target 需要深拷贝的对象
  * @return 返回对象,如果传入的值不是对象则返回原来的值
  */
-export function deepClone(target: any) {
-  let result = null;
+export function deepClone(target: any): any {
+  let result: any = null;
   if (typeof target === 'object') {
     if (Array.isArray(target)) {
       result = [];
@@ -66,7 +67,7 @@ export function delay(callback: any, timeout?: number) {
  * @param array 需要分割的数组
  * @param groupLength 组大小
  */
-export function arrayGroup(array: Array<any>, groupLength) {
+export function arrayGroup(array: Array<any>, groupLength: number) {
   var index = 0;
   var newArray = [];
   while (index < array.length) {
@@ -118,11 +119,11 @@ export function fixNumber(number: any, length?: number) {
  */
 export function sortArray(list: Array<number>, type: 1 | 2) {
   let arr = deepClone(list);
-  arr.map((item) => {
+  arr.forEach((item: any) => {
     item = Number(item);
   });
   arr.sort((value1: number, value2: number) => {
-    if (type == 1) {
+    if (type === 1) {
       return value2 - value1;
     } else {
       return value1 - value2;
