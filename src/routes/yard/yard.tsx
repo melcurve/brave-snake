@@ -1,176 +1,166 @@
-import React from "react";
-import { BlockItem, YardState } from ".";
+import { useEffect, useRef, useState } from "react";
+import { BlockItem } from "./yard.d";
 import { randomNumber } from "../../utils/common";
 import "./yard.scss";
+import { useStore } from "react-redux";
 
-export default class Yard extends React.Component {
-  yardRef: any;
+let gameInterval: any;
 
-  yardSize: number = 50;
+export default function Yard() {
+  const state = useStore().getState();
+  const gameConfig = state.gameConfigReducer;
 
-  state: YardState = {
-    blockMap: Array(Math.pow(this.yardSize, 2))
+  /** 院子对象 */
+  const yardRef = useRef<HTMLDivElement>(null);
+
+  const [blockMap, setBlockMap] = useState(
+    Array(Math.pow(gameConfig.yardSize, 2))
       .fill("")
       .map((_item, index) => {
-        if (this.isEdgeIndex(index)) return { id: index, type: "edge" };
+        if (isEdgeIndex(gameConfig.yardSize, index)) return { id: index, type: "edge" };
         return { id: index, type: "default" };
-      }),
-    snakeInfo: {
-      name: "Hoovy",
-      position: [this.yardSize, this.yardSize + 1, this.yardSize + 2],
-      direction: "right",
-    },
-    speed: 100,
-    score: 0,
+      }) as BlockItem[]
+  );
+
+  const [snakeInfo, setSnakeInfo] = useState({
+    name: "Hoovy",
+    position: [gameConfig.yardSize, gameConfig.yardSize + 1, gameConfig.yardSize + 2],
+  });
+
+  const [direction, setDirection] = useState("right");
+
+  const [score, setScore] = useState(0);
+
+  useEffect(() => {
+    goSnakeGo();
+    setGameInterval();
+    // eslint-disable-next-line
+  }, [direction]);
+
+  useEffect(() => {
+    yardRef.current!.focus();
+    setFood();
+    setGameInterval();
+    // eslint-disable-next-line
+  }, []);
+
+  const setGameInterval = () => {
+    clearGameInterval();
+    gameInterval = setInterval(() => {
+      goSnakeGo();
+    }, gameConfig.gameSpeed);
   };
 
-  gameInterval: any;
+  const clearGameInterval = () => {
+    if (!gameInterval) return;
+    clearInterval(gameInterval);
+    gameInterval = null;
+  };
 
-  get blockMap() {
-    return this.state.blockMap;
-  }
+  const goSnakeGo = (growing?: boolean) => {
+    const handleMove = (position: number) => {
+      let info = { ...snakeInfo };
 
-  get snakeInfo() {
-    return this.state.snakeInfo;
-  }
+      if (blockMap[position].type === "edge" || info.position.includes(position)) {
+        gameover();
+        return;
+      }
+      if (!growing) info.position.splice(0, 1);
+      info.position.push(position);
 
-  render() {
-    const renderBlockItem = () => {
-      return this.blockMap.map((item: BlockItem, index) => {
-        return <div key={item.id} className={`block-item ${this.snakeInfo.position.includes(index) ? "filled" : ""} ${index === this.snakeInfo.position[this.snakeInfo.position.length - 1] ? "head" : ""} type-${item.type}`}></div>;
-      });
+      setSnakeInfo(info);
     };
 
-    return (
-      <div className="yard" ref={(e) => (this.yardRef = e)} tabIndex={0} onKeyDown={(e) => this.onkeydown(e)}>
-        <div className="block-container flex-row">{renderBlockItem()}</div>
-        <div className="info-block flex-row">
-          <div className="score">积分：{this.state.score}</div>
-        </div>
-      </div>
-    );
-  }
+    const eatFood = () => {
+      clearGameInterval();
+      setScore(score + 1);
+      setFood();
+      goSnakeGo(true);
+      setGameInterval();
+    };
 
-  componentDidMount() {
-    this.yardRef.focus();
-    this.setFood();
-    this.setGameInterval();
-  }
-
-  isEdgeIndex(index: number): boolean {
-    let isEdge = false;
-    if (index + 1 <= this.yardSize || index + 1 >= this.yardSize * (this.yardSize - 1)) isEdge = true;
-    for (let i = 1; i <= this.yardSize; i++) {
-      if (index === i * this.yardSize - this.yardSize || index === i * this.yardSize - 1) isEdge = true;
-    }
-    return isEdge;
-  }
-
-  setGameInterval() {
-    this.clearGameInterval();
-    this.gameInterval = setInterval(() => {
-      this.goSnakeGo();
-    }, this.state.speed);
-  }
-
-  clearGameInterval() {
-    if (!this.gameInterval) return;
-    clearInterval(this.gameInterval);
-    this.gameInterval = null;
-  }
-
-  goSnakeGo() {
-    let snakeInfo = this.snakeInfo;
-    let position = snakeInfo.position;
-    switch (this.snakeInfo.direction) {
+    switch (direction) {
       case "left":
-        const leftHead = position[position.length - 1] - 1;
-        this.handleMove(leftHead);
-        if (this.blockMap[leftHead].type === "food") {
-          position.push(leftHead - 1);
-          this.addScore();
-          this.setFood();
-        }
+        const leftHead = snakeInfo.position[snakeInfo.position.length - 1] - 1;
+        if (blockMap[leftHead].type === "food") eatFood();
+        else handleMove(leftHead);
         break;
       case "right":
-        const rightHeight = position[position.length - 1] + 1;
-        this.handleMove(rightHeight);
-        if (this.blockMap[rightHeight].type === "food") {
-          position.push(rightHeight + 1);
-          this.addScore();
-          this.setFood();
-        }
+        const rightHead = snakeInfo.position[snakeInfo.position.length - 1] + 1;
+        if (blockMap[rightHead].type === "food") eatFood();
+        else handleMove(rightHead);
         break;
       case "up":
-        const upHead = position[position.length - 1] - this.yardSize;
-        this.handleMove(upHead);
-        if (this.blockMap[upHead].type === "food") {
-          position.push(upHead - this.yardSize);
-          this.addScore();
-          this.setFood();
-        }
+        const upHead = snakeInfo.position[snakeInfo.position.length - 1] - gameConfig.yardSize;
+        if (blockMap[upHead].type === "food") eatFood();
+        else handleMove(upHead);
         break;
       case "down":
-        const downHead = position[position.length - 1] + this.yardSize;
-        this.handleMove(downHead);
-        if (this.blockMap[downHead].type === "food") {
-          position.push(downHead + this.yardSize);
-          this.addScore();
-          this.setFood();
-        }
+        const downHead = snakeInfo.position[snakeInfo.position.length - 1] + gameConfig.yardSize;
+        if (blockMap[downHead].type === "food") eatFood();
+        else handleMove(downHead);
         break;
     }
-    this.setState({
-      snakeInfo,
-    });
-  }
+  };
 
-  handleMove(position: number) {
-    if (this.blockMap[position].type === "edge" || this.snakeInfo.position.includes(position)) {
-      this.gameover();
-      return;
-    }
-    this.snakeInfo.position.splice(0, 1);
-    this.snakeInfo.position.push(position);
-  }
+  const setFood = () => {
+    let map = [...blockMap];
 
-  addScore() {
-    this.setState({ score: this.state.score + 1 });
-  }
-
-  setFood() {
     const getPosition = (): number => {
-      const number = randomNumber(0, Math.pow(this.yardSize, 2));
-      if (this.snakeInfo.position.includes(number) || this.blockMap[number].type === "edge") return getPosition();
+      const number = randomNumber(0, Math.pow(gameConfig.yardSize, 2));
+      if (snakeInfo.position.includes(number) || map[number].type === "edge") return getPosition();
       else return number;
     };
 
-    let blockMap = this.blockMap;
-    let foodBlock = blockMap.find((item) => item.type === "food");
+    let foodBlock = map.find((item) => item.type === "food");
     if (foodBlock) foodBlock.type = "default";
     const position = getPosition();
-    blockMap[position].type = "food";
-    this.setState({ blockMap });
-  }
+    map[position].type = "food";
+    setBlockMap(map);
+  };
 
-  onkeydown(e: any) {
+  const onkeydown = (e: any) => {
     switch (e.key) {
       case "ArrowUp":
-        if (this.snakeInfo.direction !== "down") this.snakeInfo.direction = "up";
+        if (direction !== "down") setDirection("up");
         break;
       case "ArrowLeft":
-        if (this.snakeInfo.direction !== "right") this.snakeInfo.direction = "left";
+        if (direction !== "right") setDirection("left");
         break;
       case "ArrowRight":
-        if (this.snakeInfo.direction !== "left") this.snakeInfo.direction = "right";
+        if (direction !== "left") setDirection("right");
         break;
       case "ArrowDown":
-        if (this.snakeInfo.direction !== "up") this.snakeInfo.direction = "down";
+        if (direction !== "up") setDirection("down");
         break;
     }
-  }
+  };
 
-  gameover() {
-    this.clearGameInterval();
+  const gameover = () => {
+    clearGameInterval();
+  };
+
+  const renderBlockItem = () => {
+    return blockMap.map((item: BlockItem, index) => {
+      return <div key={item.id} className={`block-item ${snakeInfo.position.includes(index) ? "filled" : ""} ${index === snakeInfo.position[snakeInfo.position.length - 1] ? "head" : ""} type-${item.type}`}></div>;
+    });
+  };
+
+  return (
+    <div className="yard" ref={yardRef} tabIndex={0} onKeyDown={(e) => onkeydown(e)}>
+      <div className="block-container flex-row">{renderBlockItem()}</div>
+      <div className="info-block flex-row">
+        <div className="score">积分：{score}</div>
+      </div>
+    </div>
+  );
+}
+
+function isEdgeIndex(yardSize: number, index: number): boolean {
+  let isEdge = false;
+  if (index + 1 <= yardSize || index + 1 >= yardSize * (yardSize - 1)) isEdge = true;
+  for (let i = 1; i <= yardSize; i++) {
+    if (index === i * yardSize - yardSize || index === i * yardSize - 1) isEdge = true;
   }
+  return isEdge;
 }

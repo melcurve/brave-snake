@@ -1,9 +1,19 @@
+import * as md5 from 'md5';
+
 export const PATTERN_EMPTY = /\S/; // 是否为空
 export const PATTERN_ISPHONE = /^1[3456789]\d{9}$/; // 是否为手机号
 export const PATTERN_ISVIDEO = /\.(swf|avi|flv|mpg|rm|mov|wav|asf|3gp|mkv|rmvb|mp4)/; // 是否为视频
 export const PATTERN_HASCN = /[\u4e00-\u9fa5]/; // 是否包含中文
 export const PATTERN_NUMBER = /^[0-9]*$/; // 纯数字
 export const PATTERN_DIGIT = /^(([0-9])|([1-9]([0-9]+)))(.[0-9]+)?$/; // 数字和小数点
+
+/**
+ * 生成一个随机id
+ */
+ export function getId() {
+  let id = md5(new Date().getTime() + randomNumber(20, 1000));
+  return id;
+};
 
 /**
  * 判断是否有值（包含0）
