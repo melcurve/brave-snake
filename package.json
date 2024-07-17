@@ -1,5 +1,5 @@
 {
-  "name": "ethan-snake-react",
+  "name": "brave-snake-react",
   "version": "0.1.0",
   "private": true,
   "homepage": ".",
@@ -117,7 +117,6 @@
       "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"
     ],
     "testEnvironment": "jsdom",
-    "testRunner": "D:\\Ethan\\develop\\ethanyifan\\ethan-snake-react\\node_modules\\jest-circus\\runner.js",
     "transform": {
       "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$": "<rootDir>/config/jest/babelTransform.js",
       "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
